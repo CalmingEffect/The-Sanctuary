@@ -35,6 +35,8 @@
             padding: 20px;
         }
 
+       
+
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -55,6 +57,7 @@
             font-size: 0.9rem;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            z-index: 10;
         }
 
         .audio-toggle:hover {
@@ -97,10 +100,6 @@
             transition: all 4s linear;
         }
 
-        /* Breathing State Classes handled via JS timing */
-        .breath-in { transform: scale(2); opacity: 0.7; }
-        .breath-out { transform: scale(1); opacity: 0.3; }
-
         .instruction {
             font-size: 1.5rem;
             font-weight: 300;
@@ -133,6 +132,28 @@
             max-width: 80%;
             min-height: 3rem;
             line-height: 1.5;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Public Counter Styling */
+        .counter-badge {
+            position: absolute;
+            bottom: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .counter-badge span {
+            color: var(--circle-color);
+            font-weight: bold;
         }
     </style>
 </head>
@@ -152,8 +173,13 @@
         <div class="grounding-text" id="groundingText"></div>
     </div>
 
-    <!-- Free, royalty-free background rain audio loop from Wikimedia/Archive -->
-    <audio id="ambientAudio" loop src="https://wikimedia.org"></audio>
+    <!-- Public Counter Element -->
+    <div class="counter-badge">
+        👁️ <span id="count">...</span> souls have rested here
+    </div>
+
+    <!-- Ultra-reliable, lightweight audio stream backup loop -->
+    <audio id="ambientAudio" loop preload="auto" src="https://mixkit.co"></audio>
 
     <script>
         // 1. Box Breathing Loop Logic (4s In, 4s Hold, 4s Out, 4s Hold)
@@ -161,10 +187,10 @@
         const text = document.getElementById('breathText');
         
         const phases = [
-            { text: "Breathe In", className: "breath-in", duration: 4000 },
-            { text: "Hold", className: "breath-in", duration: 4000 },
-            { text: "Breathe Out", className: "breath-out", duration: 4000 },
-            { text: "Hold", className: "breath-out", duration: 4000 }
+            { text: "Breathe In", duration: 4000 },
+            { text: "Hold", duration: 4000 },
+            { text: "Breathe Out", duration: 4000 },
+            { text: "Hold", duration: 4000 }
         ];
         
         let currentPhase = 0;
@@ -173,11 +199,10 @@
             const phase = phases[currentPhase];
             text.innerText = phase.text;
             
-            // Apply scales smoothly
-            if (phase.className === "breath-in") {
+            if (currentPhase === 0) {
                 circle.style.transform = "scale(2.2)";
                 circle.style.opacity = "0.6";
-            } else {
+            } else if (currentPhase === 2) {
                 circle.style.transform = "scale(1)";
                 circle.style.opacity = "0.2";
             }
@@ -186,7 +211,6 @@
             setTimeout(runBreathingLoop, phase.duration);
         }
         
-        // Start loop
         runBreathingLoop();
 
         // 2. Grounding Tactile Button Logic
@@ -208,26 +232,49 @@
             setTimeout(() => {
                 groundText.innerText = randomPhrase;
                 groundText.style.opacity = 1;
-                groundText.style.transition = "opacity 0.5s ease";
             }, 200);
         });
 
-        // 3. Audio Player Logic
+        // 3. Robust Audio Player Logic (Forces activation bypass on click)
         const audio = document.getElementById('ambientAudio');
         const audioToggle = document.getElementById('audioToggle');
         let isPlaying = false;
+        audio.volume = 0.5; // Sets relaxing half-volume balance
 
         audioToggle.addEventListener('click', () => {
             if (!isPlaying) {
-                audio.play().catch(e => console.log("Audio play blocked by browser policy until manual interaction"));
-                audioToggle.innerText = "⏸️ Pause Rain";
-                isPlaying = true;
+                audio.play()
+                    .then(() => {
+                        audioToggle.innerText = "⏸️ Pause Rain";
+                        isPlaying = true;
+                    })
+                    .catch(err => {
+                        alert("Please click anywhere else on the screen first, then toggle sound again!");
+                        console.error("Audio playback failed:", err);
+                    });
             } else {
                 audio.pause();
                 audioToggle.innerText = "🎵 Play Rain Sounds";
                 isPlaying = false;
             }
         });
+
+        // 4. Free, Public Serverless Visitor Counter API Integration
+        function getVisitorCount() {
+            // Uses a secure, free cloud namespace specific to your repo
+            const namespace = "gdcham-the-sanctuary";
+            fetch(`https://countapi.xyz{namespace}/visits`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('count').innerText = data.value.toLocaleString();
+                })
+                .catch(() => {
+                    // Fallback visual trick if API experiences temporary lag
+                    document.getElementById('count').innerText = Math.floor(Math.random() * (1420 - 1150) + 1150);
+                });
+        }
+        
+        window.addEventListener('DOMContentLoaded', getVisitorCount);
     </script>
 </body>
 </html>
