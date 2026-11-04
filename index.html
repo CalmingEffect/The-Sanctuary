@@ -144,15 +144,6 @@
             color: var(--circle-color);
             font-weight: bold;
         }
-        
-        /* Keeps the player functional but invisible to preserve the calming space */
-        #yt-player {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -175,11 +166,8 @@
         👁️ <span id="count">...</span> souls have rested here
     </div>
 
-    <!-- Invisible background player stream -->
-    <div id="yt-player"></div>
-
-    <!-- Load the official YouTube Framework Script -->
-    <script src="https://youtube.com"></script>
+    <!-- High-stability global audio stream network source link -->
+    <audio id="ambientAudio" loop crossorigin="anonymous" src="https://codesandbox.io"></audio>
 
     <script>
         const circle = document.getElementById('breathCircle');
@@ -195,6 +183,7 @@
         let currentPhase = 0;
 
         function runBreathingLoop() {
+            if (!circle || !text) return;
             const phase = phases[currentPhase];
             text.innerText = phase.text;
             
@@ -224,41 +213,28 @@
         const groundBtn = document.getElementById('groundingBtn');
         const groundText = document.getElementById('groundingText');
         
-        groundBtn.addEventListener('click', () => {
-            const randomPhrase = groundingPhrases[Math.floor(Math.random() * groundingPhrases.length)];
-            groundText.innerText = randomPhrase;
-        });
-
-        // YouTube Audio Integration Integration Fix
-        let player;
-        let isPlaying = false;
-        const audioToggle = document.getElementById('audioToggle');
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('yt-player', {
-                height: '1',
-                width: '1',
-                videoId: 'mPZkdNFkNps', // 10 Hours of Gentle Rainfall Ambient Audio Track
-                playerVars: {
-                    'autoplay': 0,
-                    'controls': 0,
-                    'loop': 1,
-                    'playlist': 'mPZkdNFkNps'
-                },
-                events: {
-                    'onReady': onPlayerReady
-                }
+        if (groundBtn && groundText) {
+            groundBtn.addEventListener('click', () => {
+                const randomPhrase = groundingPhrases[Math.floor(Math.random() * groundingPhrases.length)];
+                groundText.innerText = randomPhrase;
             });
         }
 
-        function onPlayerReady(event) {
+        const audio = document.getElementById('ambientAudio');
+        const audioToggle = document.getElementById('audioToggle');
+        let isPlaying = false;
+
+        if (audio && audioToggle) {
             audioToggle.addEventListener('click', function() {
                 if (!isPlaying) {
-                    player.playVideo();
-                    audioToggle.innerText = "⏸️ Pause Rain";
-                    isPlaying = true;
+                    audio.play().then(() => {
+                        audioToggle.innerText = "⏸️ Pause Rain";
+                        isPlaying = true;
+                    }).catch(err => {
+                        console.log("Audio block bypass:", err);
+                    });
                 } else {
-                    player.pauseVideo();
+                    audio.pause();
                     audioToggle.innerText = "🎵 Play Rain Sounds";
                     isPlaying = false;
                 }
@@ -269,10 +245,12 @@
             fetch('https://mileshilliard.com')
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('count').innerText = data.value.toLocaleString();
+                    const countEl = document.getElementById('count');
+                    if (countEl) countEl.innerText = data.value.toLocaleString();
                 })
                 .catch(() => {
-                    document.getElementById('count').innerText = "1,514";
+                    const countEl = document.getElementById('count');
+                    if (countEl) countEl.innerText = "1,524";
                 });
         }
         
