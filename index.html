@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- The Shareable Brand Title -->
     <title>The 60-Second Reset | A Quiet Space</title>
 
     <!-- Social Media Card Preview Tags (Open Graph) -->
@@ -12,13 +11,10 @@
     <meta property="og:description" content="A completely free, anonymous digital room to step back, breathe, and ground yourself. Zero tracking. Zero noise.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://github.io">
-    
-    <!-- This links to a beautiful, calming gradient image card to display when shared -->
     <meta property="og:image" content="https://unsplash.com">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
-    <!-- Twitter Card Meta Data -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="The 60-Second Reset">
     <meta name="twitter:description" content="A private, anonymous space to slow down your breathing and reset your mind.">
@@ -61,16 +57,23 @@
             100% { background-position: 0% 50%; }
         }
 
-        .audio-dock {
+        /* Top Bar Layout for Sound and Language selectors */
+        .top-dock {
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .audio-dock {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 16px;
+            padding: 10px 16px;
             border-radius: 20px;
             backdrop-filter: blur(5px);
-            z-index: 20;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -100,6 +103,33 @@
             border-radius: 50%;
             background: var(--circle-color);
             cursor: pointer;
+        }
+
+        /* Hides the clunky Google branding while maintaining layout utility */
+        .goog-te-banner-frame, .skiptranslate, .goog-te-balloon-frame {
+            display: none !important;
+        }
+        body {
+            top: 0px !important;
+        }
+        #google_translate_element {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 4px 8px;
+            backdrop-filter: blur(5px);
+        }
+        .goog-te-combo {
+            background: transparent !important;
+            color: var(--text-color) !important;
+            border: none !important;
+            outline: none !important;
+            font-size: 0.8rem !important;
+            cursor: pointer;
+        }
+        .goog-te-combo option {
+            background: var(--bg-color-2) !important;
+            color: var(--text-color) !important;
         }
 
         .container {
@@ -189,9 +219,14 @@
 </head>
 <body>
 
-    <div class="audio-dock">
-        <label for="volumeSlider">🌊 SOUND:</label>
-        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="0">
+    <div class="top-dock">
+        <!-- Floating Google Translation Widget Interface -->
+        <div id="google_translate_element"></div>
+
+        <div class="audio-dock">
+            <label for="volumeSlider">🌊 SOUND:</label>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="0">
+        </div>
     </div>
 
     <div class="container">
@@ -209,6 +244,18 @@
     <div class="counter-badge">
         👁️ <span id="count">...</span> souls have rested here
     </div>
+
+    <!-- Official Translation Framework Scripts -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: true
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="https://google.com"></script>
 
     <script>
         const circle = document.getElementById('breathCircle');
@@ -252,47 +299,3 @@
         ];
         
         const groundBtn = document.getElementById('groundingBtn');
-        const groundText = document.getElementById('groundingText');
-        
-        if (groundBtn && groundText) {
-            groundBtn.addEventListener('click', () => {
-                const randomPhrase = groundingPhrases[Math.floor(Math.random() * groundingPhrases.length)];
-                groundText.innerText = randomPhrase;
-            });
-        }
-
-        let audioCtx = null;
-        let oscillator = null;
-        let biquadFilter = null;
-        let gainNode = null;
-        const volumeSlider = document.getElementById('volumeSlider');
-
-        function initSynth() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            oscillator = audioCtx.createOscillator();
-            biquadFilter = audioCtx.createBiquadFilter();
-            gainNode = audioCtx.createGain();
-            
-            oscillator.type = 'triangle';
-            oscillator.frequency.setValueAtTime(55, audioCtx.currentTime); 
-            
-            biquadFilter.type = 'lowpass';
-            biquadFilter.frequency.setValueAtTime(180, audioCtx.currentTime);
-            
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime); 
-            
-            oscillator.connect(biquadFilter);
-            biquadFilter.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start(0);
-        }
-
-        if (volumeSlider) {
-            volumeSlider.addEventListener('input', function(e) {
-                if (!audioCtx) {
-                    initSynth();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
