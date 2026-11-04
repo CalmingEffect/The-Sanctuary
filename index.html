@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sanctuary | A Quiet Space</title>
+    <style>
+        :root {
+            --bg-color-1: #1e1e2f;
+            --bg-color-2: #2a2b4d;
+            --circle-color: #8fa0e4;
+            --text-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color-1), var(--bg-color-2));
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Ambient Sound Button */
+        .audio-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            padding: 10px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .audio-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Container */
+        .container {
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        /* Breathing Guide */
+        .breathing-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .circle-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .breath-circle {
+            width: 100px;
+            height: 100px;
+            background: var(--circle-color);
+            border-radius: 50%;
+            opacity: 0.3;
+            box-shadow: 0 0 50px var(--circle-color);
+            transition: all 4s linear;
+        }
+
+        /* Breathing State Classes handled via JS timing */
+        .breath-in { transform: scale(2); opacity: 0.7; }
+        .breath-out { transform: scale(1); opacity: 0.3; }
+
+        .instruction {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            min-height: 2rem;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Grounding Interactive Button */
+        .grounding-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .grounding-btn:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .grounding-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            max-width: 80%;
+            min-height: 3rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="audio-toggle" id="audioToggle">🎵 Play Rain Sounds</button>
+
+    <div class="container">
+        <div class="breathing-section">
+            <div class="circle-container">
+                <div class="breath-circle" id="breathCircle"></div>
+            </div>
+            <div class="instruction" id="breathText">Loading...</div>
+        </div>
+
+        <button class="grounding-btn" id="groundingBtn">Press if you feel overwhelmed</button>
+        <div class="grounding-text" id="groundingText"></div>
+    </div>
+
+    <!-- Free, royalty-free background rain audio loop from Wikimedia/Archive -->
+    <audio id="ambientAudio" loop src="https://wikimedia.org"></audio>
+
+    <script>
+        // 1. Box Breathing Loop Logic (4s In, 4s Hold, 4s Out, 4s Hold)
+        const circle = document.getElementById('breathCircle');
+        const text = document.getElementById('breathText');
+        
+        const phases = [
+            { text: "Breathe In", className: "breath-in", duration: 4000 },
+            { text: "Hold", className: "breath-in", duration: 4000 },
+            { text: "Breathe Out", className: "breath-out", duration: 4000 },
+            { text: "Hold", className: "breath-out", duration: 4000 }
+        ];
+        
+        let currentPhase = 0;
+
+        function runBreathingLoop() {
+            const phase = phases[currentPhase];
+            text.innerText = phase.text;
+            
+            // Apply scales smoothly
+            if (phase.className === "breath-in") {
+                circle.style.transform = "scale(2.2)";
+                circle.style.opacity = "0.6";
+            } else {
+                circle.style.transform = "scale(1)";
+                circle.style.opacity = "0.2";
+            }
+
+            currentPhase = (currentPhase + 1) % phases.length;
+            setTimeout(runBreathingLoop, phase.duration);
+        }
+        
+        // Start loop
+        runBreathingLoop();
+
+        // 2. Grounding Tactile Button Logic
+        const groundingPhrases = [
+            "You are entirely safe right here in this room.",
+            "Your thoughts are storms, but you are the sky. Let them pass.",
+            "Bring your attention to your feet resting flat against the floor.",
+            "Notice three things you can hear around you right now.",
+            "There is nothing you need to fix or figure out at this exact moment.",
+            "This feeling is uncomfortable, but it is temporary. It will pass."
+        ];
+        
+        const groundBtn = document.getElementById('groundingBtn');
+        const groundText = document.getElementById('groundingText');
+        
+        groundBtn.addEventListener('click', () => {
+            const randomPhrase = groundingPhrases[Math.floor(Math.random() * groundingPhrases.length)];
+            groundText.style.opacity = 0;
+            setTimeout(() => {
+                groundText.innerText = randomPhrase;
+                groundText.style.opacity = 1;
+                groundText.style.transition = "opacity 0.5s ease";
+            }, 200);
+        });
+
+        // 3. Audio Player Logic
+        const audio = document.getElementById('ambientAudio');
+        const audioToggle = document.getElementById('audioToggle');
+        let isPlaying = false;
+
+        audioToggle.addEventListener('click', () => {
+            if (!isPlaying) {
+                audio.play().catch(e => console.log("Audio play blocked by browser policy until manual interaction"));
+                audioToggle.innerText = "⏸️ Pause Rain";
+                isPlaying = true;
+            } else {
+                audio.pause();
+                audioToggle.innerText = "🎵 Play Rain Sounds";
+                isPlaying = false;
+            }
+        });
+    </script>
+</body>
+</html>
