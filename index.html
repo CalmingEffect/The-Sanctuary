@@ -15,11 +15,6 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The 60-Second Reset">
-    <meta name="twitter:description" content="A private, anonymous space to slow down your breathing and reset your mind.">
-    <meta name="twitter:image" content="https://unsplash.com">
-
     <style>
         :root {
             --bg-color-1: #1e1e2f;
@@ -57,7 +52,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Top Bar Layout for Sound and Language selectors */
         .top-dock {
             position: absolute;
             top: 20px;
@@ -103,33 +97,6 @@
             border-radius: 50%;
             background: var(--circle-color);
             cursor: pointer;
-        }
-
-        /* Hides the clunky Google branding while maintaining layout utility */
-        .goog-te-banner-frame, .skiptranslate, .goog-te-balloon-frame {
-            display: none !important;
-        }
-        body {
-            top: 0px !important;
-        }
-        #google_translate_element {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 4px 8px;
-            backdrop-filter: blur(5px);
-        }
-        .goog-te-combo {
-            background: transparent !important;
-            color: var(--text-color) !important;
-            border: none !important;
-            outline: none !important;
-            font-size: 0.8rem !important;
-            cursor: pointer;
-        }
-        .goog-te-combo option {
-            background: var(--bg-color-2) !important;
-            color: var(--text-color) !important;
         }
 
         .container {
@@ -220,9 +187,6 @@
 <body>
 
     <div class="top-dock">
-        <!-- Floating Google Translation Widget Interface -->
-        <div id="google_translate_element"></div>
-
         <div class="audio-dock">
             <label for="volumeSlider">🌊 SOUND:</label>
             <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="0">
@@ -242,30 +206,66 @@
     </div>
 
     <div class="counter-badge">
-        👁️ <span id="count">...</span> souls have rested here
+        👁️ <span id="count">1,584</span> souls have rested here
     </div>
 
-    <!-- Official Translation Framework Scripts -->
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: true
-            }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="https://google.com"></script>
-
     <script>
+        // Native Multi-Language Dictionary Matrix (Bypasses Adblockers/Shields completely)
+        const translations = {
+            en: {
+                in: "Breathe In", hold: "Hold", out: "Breathe Out",
+                btn: "Press if you feel overwhelmed", souls: "souls have rested here",
+                phrases: [
+                    "You are entirely safe right here in this room.",
+                    "Your thoughts are storms, but you are the sky. Let them pass.",
+                    "Bring your attention to your feet resting flat against the floor.",
+                    "There is nothing you need to fix or figure out at this exact moment.",
+                    "This feeling is uncomfortable, but it is temporary. It will pass."
+                ]
+            },
+            ko: { // Korean translation alignment for the Sansa template audience
+                in: "숨을 들이마시세요", hold: "멈추세요", out: "숨을 내쉬세요",
+                btn: "마음이 압도될 때 누르세요", souls: "명의 영혼들이 이곳에서 쉬어갔습니다",
+                phrases: [
+                    "당신은 이 방 안에서 완전히 안전합니다.",
+                    "생각은 폭풍일 뿐이며 당신은 하늘입니다. 흘러가게 두세요.",
+                    "바닥에 닿아 있는 당신의 발바닥에 집중해 보세요.",
+                    "지금 이 순간 당신이 해결해야 할 일은 아무것도 없습니다.",
+                    "이 느낌은 불편하지만 일시적입니다. 곧 지나갈 것입니다."
+                ]
+            },
+            es: { // Spanish
+                in: "Inhala", hold: "Mantén", out: "Exhala",
+                btn: "Presiona si te sientes abrumado", souls: "almas han descansado aquí",
+                phrases: [
+                    "Estás completamente a salvo aquí en esta habitación.",
+                    "Tus pensamientos son tormentas, pero tú eres el cielo. Déjalos pasar.",
+                    "Lleva tu atención a tus pies apoyados en el suelo.",
+                    "No hay nada que necesites arreglar o resolver en este momento.",
+                    "Este sentimiento es incómodo, pero es temporal. Pasará."
+                ]
+            }
+        };
+
+        // Auto-detect browser localization settings
+        let userLang = navigator.language || navigator.userLanguage;
+        userLang = userLang.substring(0, 2); // Get main language code (e.g. 'en', 'ko', 'es')
+        
+        // Fallback to English if visitor's language isn't explicitly configured in matrix
+        const locale = translations[userLang] ? translations[userLang] : translations['en'];
+
+        // Apply localization elements to UI text hooks
+        document.getElementById('groundingBtn').innerText = locale.btn;
+        document.querySelector('.counter-badge').innerHTML = `👁️ <span id="count">...</span> ${locale.sou souls}`;
+
         const circle = document.getElementById('breathCircle');
         const text = document.getElementById('breathText');
         
         const phases = [
-            { text: "Breathe In", duration: 4000 },
-            { text: "Hold", duration: 4000 },
-            { text: "Breathe Out", duration: 4000 },
-            { text: "Hold", duration: 4000 }
+            { text: locale.in, duration: 4000 },
+            { text: locale.hold, duration: 4000 },
+            { text: locale.out, duration: 4000 },
+            { text: locale.hold, duration: 4000 }
         ];
         
         let currentPhase = 0;
@@ -287,15 +287,3 @@
             setTimeout(runBreathingLoop, phase.duration);
         }
         
-        runBreathingLoop();
-
-        const groundingPhrases = [
-            "You are entirely safe right here in this room.",
-            "Your thoughts are storms, but you are the sky. Let them pass.",
-            "Bring your attention to your feet resting flat against the floor.",
-            "Notice three things you can hear around you right now.",
-            "There is nothing you need to fix or figure out at this exact moment.",
-            "This feeling is uncomfortable, but it is temporary. It will pass."
-        ];
-        
-        const groundBtn = document.getElementById('groundingBtn');
