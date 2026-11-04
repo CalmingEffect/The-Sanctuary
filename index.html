@@ -3,7 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Sanctuary | A Quiet Space</title>
+    
+    <!-- The Shareable Brand Title -->
+    <title>The 60-Second Reset | A Quiet Space</title>
+
+    <!-- Social Media Card Preview Tags (Open Graph) -->
+    <meta property="og:title" content="The 60-Second Reset">
+    <meta property="og:description" content="A completely free, anonymous digital room to step back, breathe, and ground yourself. Zero tracking. Zero noise.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://github.io">
+    
+    <!-- This links to a beautiful, calming gradient image card to display when shared -->
+    <meta property="og:image" content="https://unsplash.com">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card Meta Data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The 60-Second Reset">
+    <meta name="twitter:description" content="A private, anonymous space to slow down your breathing and reset your mind.">
+    <meta name="twitter:image" content="https://unsplash.com">
+
     <style>
         :root {
             --bg-color-1: #1e1e2f;
@@ -41,7 +61,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Centered User Input Authorization Dock */
         .audio-dock {
             position: absolute;
             top: 20px;
@@ -170,7 +189,6 @@
 </head>
 <body>
 
-    <!-- Direct Input Slider Forces Firefox Core Sound Unblock -->
     <div class="audio-dock">
         <label for="volumeSlider">🌊 SOUND:</label>
         <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="0">
@@ -243,7 +261,6 @@
             });
         }
 
-        // Web Audio API Synthesis Unblock Pipeline 
         let audioCtx = null;
         let oscillator = null;
         let biquadFilter = null;
@@ -273,34 +290,9 @@
 
         if (volumeSlider) {
             volumeSlider.addEventListener('input', function(e) {
-                // Initialize audio context on first slide event
                 if (!audioCtx) {
                     initSynth();
                 }
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
-                
-                // Convert 0-100 slider range directly to safe gain limits
-                const volumeLevel = e.target.value / 250; 
-                gainNode.gain.setValueAtTime(volumeLevel, audioCtx.currentTime);
-            });
-        }
-
-        function getVisitorCount() {
-            fetch('https://mileshilliard.com')
-                .then(res => res.json())
-                .then(data => {
-                    const countEl = document.getElementById('count');
-                    if (countEl) countEl.innerText = data.value.toLocaleString();
-                })
-                .catch(() => {
-                    const countEl = document.getElementById('count');
-                    if (countEl) countEl.innerText = "1,556";
-                });
-        }
-        
-        window.addEventListener('DOMContentLoaded', getVisitorCount);
-    </script>
-</body>
-</html>
