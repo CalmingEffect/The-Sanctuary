@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>The 60-Second Reset | A Quiet Space</title>
 
-    <!-- Social Media Card Preview Tags (Open Graph) -->
     <meta property="og:title" content="The 60-Second Reset">
     <meta property="og:description" content="A completely free, anonymous digital room to step back, breathe, and ground yourself. Zero tracking. Zero noise.">
     <meta property="og:type" content="website">
@@ -22,14 +20,12 @@
             --circle-color: #8fa0e4;
             --text-color: #e2e8f0;
         }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             user-select: none;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, var(--bg-color-1), var(--bg-color-2));
@@ -45,23 +41,17 @@
             text-align: center;
             padding: 20px;
         }
-
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
         .top-dock {
             position: absolute;
             top: 20px;
             right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
             z-index: 100;
         }
-
         .audio-dock {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -72,15 +62,12 @@
             align-items: center;
             gap: 12px;
         }
-
         .audio-dock label {
             font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.6);
             letter-spacing: 1px;
         }
-
         .volume-slider {
-            -webkit-appearance: none;
             appearance: none;
             width: 100px;
             height: 4px;
@@ -89,16 +76,14 @@
             outline: none;
             cursor: pointer;
         }
-
         .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
+            appearance: none;
             width: 12px;
             height: 12px;
             border-radius: 50%;
             background: var(--circle-color);
             cursor: pointer;
         }
-
         .container {
             max-width: 500px;
             display: flex;
@@ -106,14 +91,6 @@
             align-items: center;
             gap: 40px;
         }
-
-        .breathing-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
         .circle-container {
             position: relative;
             width: 200px;
@@ -122,7 +99,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .breath-circle {
             width: 100px;
             height: 100px;
@@ -132,15 +108,13 @@
             box-shadow: 0 0 50px var(--circle-color);
             transition: all 4s linear;
         }
-
         .instruction {
             font-size: 1.5rem;
             font-weight: 300;
             letter-spacing: 2px;
             min-height: 2rem;
-            transition: opacity 0.5s ease;
+            margin-top: 20px;
         }
-
         .grounding-btn {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -152,20 +126,14 @@
             transition: all 0.3s ease;
             margin-top: 20px;
         }
-
-        .grounding-btn:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
         .grounding-text {
             font-size: 1rem;
             color: rgba(255, 255, 255, 0.5);
             max-width: 80%;
             min-height: 3rem;
             line-height: 1.5;
+            margin-top: 10px;
         }
-
         .counter-badge {
             position: absolute;
             bottom: 20px;
@@ -194,23 +162,19 @@
     </div>
 
     <div class="container">
-        <div class="breathing-section">
-            <div class="circle-container">
-                <div class="breath-circle" id="breathCircle"></div>
-            </div>
-            <div class="instruction" id="breathText">Loading...</div>
+        <div class="circle-container">
+            <div class="breath-circle" id="breathCircle"></div>
         </div>
-
+        <div class="instruction" id="breathText">Loading...</div>
         <button class="grounding-btn" id="groundingBtn">Press if you feel overwhelmed</button>
         <div class="grounding-text" id="groundingText"></div>
     </div>
 
     <div class="counter-badge">
-        👁️ <span id="count">1,584</span> souls have rested here
+        👁️ <span id="count">...</span> souls have rested here
     </div>
 
     <script>
-        // Native Multi-Language Dictionary Matrix (Bypasses Adblockers/Shields completely)
         const translations = {
             en: {
                 in: "Breathe In", hold: "Hold", out: "Breathe Out",
@@ -223,7 +187,7 @@
                     "This feeling is uncomfortable, but it is temporary. It will pass."
                 ]
             },
-            ko: { // Korean translation alignment for the Sansa template audience
+            ko: {
                 in: "숨을 들이마시세요", hold: "멈추세요", out: "숨을 내쉬세요",
                 btn: "마음이 압도될 때 누르세요", souls: "명의 영혼들이 이곳에서 쉬어갔습니다",
                 phrases: [
@@ -234,7 +198,7 @@
                     "이 느낌은 불편하지만 일시적입니다. 곧 지나갈 것입니다."
                 ]
             },
-            es: { // Spanish
+            es: {
                 in: "Inhala", hold: "Mantén", out: "Exhala",
                 btn: "Presiona si te sientes abrumado", souls: "almas han descansado aquí",
                 phrases: [
@@ -247,34 +211,27 @@
             }
         };
 
-        // Auto-detect browser localization settings
-        let userLang = navigator.language || navigator.userLanguage;
-        userLang = userLang.substring(0, 2); // Get main language code (e.g. 'en', 'ko', 'es')
-        
-        // Fallback to English if visitor's language isn't explicitly configured in matrix
+        let userLang = navigator.language || navigator.userLanguage || "en";
+        userLang = userLang.substring(0, 2);
         const locale = translations[userLang] ? translations[userLang] : translations['en'];
 
-        // Apply localization elements to UI text hooks
         document.getElementById('groundingBtn').innerText = locale.btn;
-        document.querySelector('.counter-badge').innerHTML = `👁️ <span id="count">...</span> ${locale.sou souls}`;
+        document.querySelector('.counter-badge').innerHTML = `👁️ <span id="count">...</span> ${locale.souls}`;
 
         const circle = document.getElementById('breathCircle');
         const text = document.getElementById('breathText');
-        
         const phases = [
             { text: locale.in, duration: 4000 },
             { text: locale.hold, duration: 4000 },
             { text: locale.out, duration: 4000 },
             { text: locale.hold, duration: 4000 }
         ];
-        
         let currentPhase = 0;
 
         function runBreathingLoop() {
             if (!circle || !text) return;
             const phase = phases[currentPhase];
             text.innerText = phase.text;
-            
             if (currentPhase === 0) {
                 circle.style.transform = "scale(2.2)";
                 circle.style.opacity = "0.6";
@@ -282,8 +239,29 @@
                 circle.style.transform = "scale(1)";
                 circle.style.opacity = "0.2";
             }
-
             currentPhase = (currentPhase + 1) % phases.length;
             setTimeout(runBreathingLoop, phase.duration);
         }
-        
+        runBreathingLoop();
+
+        const groundBtn = document.getElementById('groundingBtn');
+        const groundText = document.getElementById('groundingText');
+        if (groundBtn && groundText) {
+            groundBtn.addEventListener('click', () => {
+                const randomPhrase = locale.phrases[Math.floor(Math.random() * locale.phrases.length)];
+                groundText.innerText = randomPhrase;
+            });
+        }
+
+        let audioCtx = null, oscillator = null, biquadFilter = null, gainNode = null;
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        function initSynth() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            oscillator = audioCtx.createOscillator();
+            biquadFilter = audioCtx.createBiquadFilter();
+            gainNode = audioCtx.createGain();
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(55, audioCtx.currentTime); 
+            biquadFilter.type = 'lowpass';
+        }
