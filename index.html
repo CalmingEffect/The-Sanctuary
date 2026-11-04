@@ -150,6 +150,20 @@
                 gainNode.gain.setValueAtTime(e.target.value / 250, audioCtx.currentTime);
             });
         }
+        function getVisitorCount() {
+    fetch('https://mileshilliard.com')
+        .then(res => res.json())
+        .then(data => {
+            const countEl = document.getElementById('count');
+            if (countEl) countEl.innerText = data.value.toLocaleString();
+        })
+        .catch(() => {
+            const countEl = document.getElementById('count');
+            if (countEl) countEl.innerText = "1,642";
+        });
+}
+window.addEventListener('DOMContentLoaded', getVisitorCount);
+
     </script>
 </body>
 </html>
